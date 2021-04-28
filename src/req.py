@@ -8,33 +8,33 @@ from json import dumps
 app = Flask(__name__)
 api = Api(app)
 
-# Open files to get response data
-f = open("response200.html", "r")
-htmlReturn = f.read()
+def lerArquivo(tipo, teste):
+	try:
+		f = open("files/%s_%s.txt" % (tipo, teste), "r")
+	except Exception:
+		f = open("files/default.html", "r")
 
-f = open("response200.xml", "r")
-xmlReturn = f.read()
+	return f.read()
 
-f = open("response200.json", "r")
-jsonReturn = f.read()
-
-f = open("response404.html", "r")
-notfoundReturn = f.read()
+def tipoContent(tipo):
+	if tipo == "json":
+		return "application/json"
+	elif tipo == "html":
+		return "text/html"
+	elif tipo == "xml":
+		return "text/xml"
+	else:
+		return "text/plain"
 
 # Define Classes
-class Consulta(Resource):
-	def get(self, retType):
-		if retType == "xml":
-			return Response(response=xmlReturn,content_type="text/xml",status=200)
-		elif retType == "html":
-			return Response(response=htmlReturn,content_type="text/html", status=200)
-		elif retType == "json":
-			return Response(response=jsonReturn,content_type="application/json",status=200)
-		else:
-			return Response(status=404)
+class Simulador(Resource):
+	def get(self, reqType, testType):
+		return Response(response=lerArquivo(reqType, testType),content_type=tipoContent(reqType),status=200)
+	def post(self, reqType, testType):
+		return Response(response=lerArquivo(reqType, testType),content_type=tipoContent(reqType),status=200)
 
 # Add Routes
-api.add_resource(Consulta, '/consulta/<retType>')
+api.add_resource(Simulador, '/<reqType>/<testType>')
 
 # Main
 if __name__ == '__main__':
